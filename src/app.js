@@ -76,4 +76,6 @@ app.get("/test", async (req, res) => {
   }
 })
 
+app.use("/slack", require("./slack"))
+
 module.exports = app

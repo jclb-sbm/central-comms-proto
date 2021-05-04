@@ -1,4 +1,5 @@
 const { WebClient, LogLevel } = require("@slack/web-api");
+const router = require("express").Router()
 
 // Initialize
 const client = new WebClient(process.env.SLACK_TOKEN, {
@@ -6,61 +7,55 @@ const client = new WebClient(process.env.SLACK_TOKEN, {
   logLevel: LogLevel.DEBUG
 });
 
-
-async function findConversation(name) {
+router.get("/channels", async (req, res) => {
   try {
-    // Call the conversations.list method using the built-in WebClient
     const result = await client.conversations.list({
-      // The token you used to initialize your app
       token: process.env.SLACK_TOKEN
     });
 
-    for (const channel of result.channels) {
-      if (channel.name === name) {
-        channelId = channel.id;
-
-        // Print result
-        console.log("Found conversation ID: " + channelId);
-
-        const result = await client.conversations.history({
-          channel: channelId
-        });
-      
-        conversationHistory = result.messages;
-      
-        // Print results
-        console.log(conversationHistory.length + " messages found in " + channelId);
-        conversationHistory.map(e => console.log(e))
-        // Break from for loop
-        break;
+    res.send(result.channels.map(c => {
+      return {
+        id: c.id,
+        name: c.name,
+        purpose: c.purpose,
       }
-    }
+    }))
+  } catch (e) {
+    res.send(e)
   }
-  catch (error) {
-    console.error(error);
-  }
-}
+})
 
-async function publishMessage(id, text) {
+router.get("/channel/:channel", async (req, res) => {
   try {
-    // Call the chat.postMessage method using the built-in WebClient
-    const result = await client.chat.postMessage({
-      // The token you used to initialize your app
+    const result = await client.conversations.history({
       token: process.env.SLACK_TOKEN,
-      channel: id,
-      text: text
-      // You could also use a blocks[] array to send richer content
-    });
+      channel: req.params.channel
+    })
 
-    // Print result, which includes information about the message (like TS)
-    console.log(result);
+    const resp = result.messages.map((m) => {
+      return {
+        text: m.text,
+        user: m.user
+      }
+    })
+    res.send(resp)
+  } catch (e) {
+    res.send(e)
+  }
+})
+
+router.post("/send-msg", async (req, res) => {
+  try {
+    const result = await client.chat.postMessage({
+      token: process.env.SLACK_TOKEN,
+      channel: req.body.channel,
+      text: req.body.text,
+    });
+    res.send(result)
   }
   catch (error) {
-    console.error(error);
+    res.send(error)
   }
-}
+})
 
-publishMessage("C020N0CFVKL", "Hello world :tada:, too easy");
-
-// Find conversation with a specified channel `name`
-// findConversation("general");
+module.exports = router

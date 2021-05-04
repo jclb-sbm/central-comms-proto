@@ -58,4 +58,10 @@ router.post("/send-msg", async (req, res) => {
   }
 })
 
+router.post("/event", async (req, res) => {
+  // insert web socket event here
+  console.log(req.body)
+  res.send(req.body.challenge)
+})
+
 module.exports = router

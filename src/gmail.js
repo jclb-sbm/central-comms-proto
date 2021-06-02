@@ -72,8 +72,8 @@ async function sendMail({subject, text, to,}) {
 
     const mailOptions = {
       from: 'SENDER NAME <johnchristian@kingslanduniversity.com>',
-      html: '<h1>Hello from gmail email using API</h1>',
-      subject, text, to,
+      html: `<p>${text}</p>`,
+      subject, to,
     };
 
     const result = await transport.sendMail(mailOptions);

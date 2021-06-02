@@ -9,8 +9,9 @@ const {
 
 const app = express();
 
+app.use(require("cors")())
 app.use(express.json());
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({extended: true}));
 
 app.get("/gsheets", async (req, res) => {
   try {
@@ -39,7 +40,7 @@ app.get("/emails", async (req, res) => {
   }
 })
 
-app.post("/emails", async (req, res) => {
+app.post("/send-email", async (req, res) => {
   try {
     const resp = await sendMail(req.body)
     res.send(resp)
@@ -48,7 +49,7 @@ app.post("/emails", async (req, res) => {
   }
 })
 
-app.get("/test", async (req, res) => {
+app.post("/admin-emails", async (req, res) => {
   try {
     const cohorts = await getCohortsByAdmin(req.body);
     const cohortIds = cohorts.map(({ id }) => id)
@@ -70,14 +71,14 @@ app.get("/test", async (req, res) => {
       return obj
     })
 
-    res.send(privateMessages)
+    res.json(privateMessages)
   } catch (e) {
     res.send(e)
   }
 })
 
 app.post("/email-hook", async (req, res) => {
-  console.log(req.body)
+  req.app.get('io').emit('new-email', req.body)
   res.send(req.body)
 })
 

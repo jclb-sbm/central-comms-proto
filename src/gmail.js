@@ -55,7 +55,7 @@ async function getEmails({ email }) {
   }
 }
 
-async function sendMail() {
+async function sendMail({subject, text, to,}) {
   try {
     const accessToken = await oAuth2Client.getAccessToken();
     const transport = nodemailer.createTransport({
@@ -72,14 +72,11 @@ async function sendMail() {
 
     const mailOptions = {
       from: 'SENDER NAME <johnchristian@kingslanduniversity.com>',
-      to: 'johnchristian@kingslanduniversity.com',
-      subject: 'Hello from gmail using API',
-      text: 'Hello from gmail email using API 2',
       html: '<h1>Hello from gmail email using API</h1>',
+      subject, text, to,
     };
 
     const result = await transport.sendMail(mailOptions);
-    console.log(result)
     return result;
   } catch (error) {
     return error;

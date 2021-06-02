@@ -41,7 +41,7 @@ app.get("/emails", async (req, res) => {
 
 app.post("/emails", async (req, res) => {
   try {
-    const resp = await sendMail()
+    const resp = await sendMail(req.body)
     res.send(resp)
   } catch (e) {
     res.send(e)
@@ -74,6 +74,11 @@ app.get("/test", async (req, res) => {
   } catch (e) {
     res.send(e)
   }
+})
+
+app.post("/email-hook", async (req, res) => {
+  console.log(req.body)
+  res.send(req.body)
 })
 
 app.use("/slack", require("./slack"))

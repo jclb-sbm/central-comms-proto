@@ -84,4 +84,16 @@ app.post("/email-hook", async (req, res) => {
 
 app.use("/slack", require("./slack"))
 
+app.post("/send-sms", async (req, res) => {
+  require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN)
+    .messages
+    .create({
+      body: req.body.body,
+      from: process.env.TWILIO_NUMBER,
+      to: '+639760253660',
+    })
+    .then(message => res.json(message))
+    .catch(e => console.log(e))
+})
+
 module.exports = app
